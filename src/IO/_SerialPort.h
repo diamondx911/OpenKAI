@@ -1,5 +1,5 @@
-#ifndef AI_IO_SERIALPORT_H_
-#define AI_IO_SERIALPORT_H_
+#ifndef OpenKAI_src_IO__SerialPort_H_
+#define OpenKAI_src_IO__SerialPort_H_
 
 #include "../Base/common.h"
 #include "_IOBase.h"
@@ -29,7 +29,7 @@ public:
 	bool open(void);
 	void close(void);
 	bool start(void);
-	void complete(void);
+	void reset(void);
 
 private:
 	bool setup(void);

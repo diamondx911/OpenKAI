@@ -5,11 +5,13 @@
  *      Author: yankai
  */
 
-#ifndef OPENKAI_SRC_DNN__ImageNet_H_
-#define OPENKAI_SRC_DNN__ImageNet_H_
+#ifndef OpenKAI_src_DNN_Classifier__ImageNet_H_
+#define OpenKAI_src_DNN_Classifier__ImageNet_H_
 
 #include "../../Base/common.h"
 #include "../../Detector/_DetectorBase.h"
+
+#ifdef USE_TENSORRT
 
 namespace kai
 {
@@ -24,12 +26,16 @@ public:
 	bool link(void);
 	bool start(void);
 	bool draw(void);
+	void reset(void);
+	int getClassIdx(string& className);
+	string getClassName(int iClass);
 
 	int classify(Frame* pBGR, string* pName);
 	bool bReady(void);
 
 private:
 	void detect(void);
+	void classifyBatch(int iObj, int nBatch);
 	void update(void);
 	static void* getUpdateThread(void* This)
 	{
@@ -38,18 +44,20 @@ private:
 	}
 
 public:
-#ifdef USE_TENSORRT
 	imageNet* m_pIN;
-#endif
 	Frame* m_pRGBA;
 
-	int m_nBatch;
-	string m_blobIn;
-	string m_blobOut;
-	int	   m_maxPix;
+	int		m_nBatch;
+	string	m_blobIn;
+	string	m_blobOut;
+	int		m_maxPix;
+
+	uint64_t* m_pmClass;
+	int* m_piClass;
 
 };
 
 }
 
+#endif
 #endif

@@ -13,6 +13,8 @@
 #include "../Utility/util.h"
 
 #define N_EXT 16
+#define D_TYPE_FILE 0x8
+#define D_TYPE_FOLDER 0x4
 
 namespace kai
 {
@@ -26,11 +28,13 @@ public:
 	bool init(void* pKiss);
 	bool link(void);
 	bool start(void);
+	void reset(void);
+
 	int getDirFileList(void);
 	bool verifyExtension(string* fName);
-	bool openOutput(void);
 
 private:
+	void getDirFileList(string* pStrDir);
 	void update(void);
 	static void* getUpdateThread(void* This)
 	{
@@ -40,7 +44,6 @@ private:
 
 public:
 	string m_dirIn;
-	string m_dirOut;
 	vector<string> m_vExtIn;
 	string m_extOut;
 

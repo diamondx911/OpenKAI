@@ -1,6 +1,6 @@
 
-#ifndef OPENKAI_SRC_AUTOPILOT_ACTION_APcopter_DNNnav_H_
-#define OPENKAI_SRC_AUTOPILOT_ACTION_APcopter_DNNnav_H_
+#ifndef OpenKAI_src_Autopilot_Controller_APcopter_DNNnav_H_
+#define OpenKAI_src_Autopilot_Controller_APcopter_DNNnav_H_
 
 #include "../../../Base/common.h"
 #include "../../../DNN/Classifier/_ImageNet.h"
@@ -23,7 +23,9 @@ public:
 
 private:
 	APcopter_base* m_pAP;
+#ifdef USE_TENSORRT
 	_ImageNet*	m_pIN;
+#endif
 
 	int m_nTerrain;
 

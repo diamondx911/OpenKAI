@@ -27,28 +27,33 @@ public:
 	bool init(void* pKiss);
 	bool link(void);
 	bool start(void);
+	void reset(void);
 
 private:
 	void rotate(void);
-	void move(void);
+	void noise(void);
 	void shrink(void);
 	void lowResolution(void);
 	void crop(void);
 	void flip(void);
-	void tone(void);
-	void noise(void);
-	void channelShift(void);
 	void contrast(void);
+	void brightness(void);
+	void histEqualize(void);
+	void blur(void);
+	void gaussianBlur(void);
+	void medianBlur(void);
+	void bilateralBlur(void);
+
+	void adaptHistEqualize(void);
+	void move(void);
+	void tone(void);
+	void channelShift(void);
 	void shearing(void);
 	void vignetting(void);
-	void histEqualize(void);
-	void adaptHistEqualize(void);
 	void decolor(void);
 	void invColor(void);
-	void blur(void);
 	void posterize(void);
 	void erosion(void);
-	void brightness(void);
 	void saturation(void);
 	void hue(void);
 
@@ -76,12 +81,31 @@ public:
 	double m_dLowResolution;
 	int m_nLowResolution;
 
-	int m_noiseMean;
-	int m_noiseDev;
+	int m_dNoise;
 	int m_nNoise;
+	int m_noiseType;
+
+	double m_dContrast;
+	int m_nContrast;
+
+	double m_dBrightness;
+	int m_nBrightness;
+
+	double m_dBlur;
+	int m_nBlur;
+
+	double m_dGaussianBlur;
+	int m_nGaussianBlur;
+
+	double m_dMedianBlur;
+	int m_nMedianBlur;
+
+	double m_dBilateralBlur;
+	int m_nBilateralBlur;
 
 	vector<string> m_vCmd;
 	bool m_bDeleteOriginal;
+	bool m_bSaveOriginalCopy;
 	double m_progress;
 
 	Frame* m_pFrameIn;

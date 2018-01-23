@@ -5,12 +5,12 @@
  *      Author: yankai
  */
 
-#include "_ZEDobstacle.h"
+#include "_ZEDdistance.h"
 
 namespace kai
 {
 
-_ZEDobstacle::_ZEDobstacle()
+_ZEDdistance::_ZEDdistance()
 {
 #ifdef USE_ZED
 	m_pZed = NULL;
@@ -23,15 +23,12 @@ _ZEDobstacle::_ZEDobstacle()
 	m_mDim.y = 10;
 }
 
-_ZEDobstacle::~_ZEDobstacle()
+_ZEDdistance::~_ZEDdistance()
 {
-	DEL(m_pMatrix);
-
-	for (int i = 0; i < m_nFilter; i++)
-		DEL(m_pFilteredMatrix[i]);
+	reset();
 }
 
-bool _ZEDobstacle::init(void* pKiss)
+bool _ZEDdistance::init(void* pKiss)
 {
 	IF_F(!_ThreadBase::init(pKiss));
 	Kiss* pK = (Kiss*) pKiss;
@@ -63,7 +60,15 @@ bool _ZEDobstacle::init(void* pKiss)
 	return true;
 }
 
-bool _ZEDobstacle::link(void)
+void _ZEDdistance::reset(void)
+{
+	DEL(m_pMatrix);
+
+	for (int i = 0; i < m_nFilter; i++)
+		DEL(m_pFilteredMatrix[i]);
+}
+
+bool _ZEDdistance::link(void)
 {
 	IF_F(!this->_ThreadBase::link());
 	Kiss* pK = (Kiss*) m_pKiss;
@@ -73,15 +78,21 @@ bool _ZEDobstacle::link(void)
 #ifdef USE_ZED
 	F_INFO(pK->v("_ZED", &iName));
 	m_pZed = (_ZED*) (pK->root()->getChildInstByName(&iName));
+	if(!m_pZed)
+	{
+		LOG_E(iName << " not found");
+		return false;
+	}
 
-	IF_F(!m_pZed);
-	m_range = m_pZed->range();
+	vDouble2 range = m_pZed->range();
+	m_rMin = range.x;
+	m_rMax = range.y;
 #endif
 
 	return true;
 }
 
-bool _ZEDobstacle::start(void)
+bool _ZEDdistance::start(void)
 {
 	m_bThreadON = true;
 	int retCode = pthread_create(&m_threadID, 0, getUpdateThread, this);
@@ -94,7 +105,7 @@ bool _ZEDobstacle::start(void)
 	return true;
 }
 
-void _ZEDobstacle::update(void)
+void _ZEDdistance::update(void)
 {
 	while (m_bThreadON)
 	{
@@ -106,7 +117,7 @@ void _ZEDobstacle::update(void)
 	}
 }
 
-void _ZEDobstacle::detect(void)
+void _ZEDdistance::detect(void)
 {
 #ifdef USE_ZED
 	NULL_(m_pZed);
@@ -138,7 +149,7 @@ void _ZEDobstacle::detect(void)
 #endif
 }
 
-double _ZEDobstacle::d(vInt4* pROI, vInt2* pPos)
+double _ZEDdistance::d(vInt4* pROI, vInt2* pPos)
 {
 #ifdef USE_ZED
 	if(!m_pZed)return -1.0;
@@ -146,15 +157,15 @@ double _ZEDobstacle::d(vInt4* pROI, vInt2* pPos)
 
 	if(!pROI)return -1.0;
 
-	double dMin = m_range.y;
+	double dMin = m_rMax;
 	int i,j;
 	for(i=pROI->y;i<pROI->w;i++)
 	{
 		for(j=pROI->x;j<pROI->z;j++)
 		{
 			double dCell = m_pFilteredMatrix[i*m_mDim.x+j]->v();
-			IF_CONT(dCell < m_range.x);
-			IF_CONT(dCell > m_range.y);
+			IF_CONT(dCell < m_rMin);
+			IF_CONT(dCell > m_rMax);
 			IF_CONT(dCell > dMin);
 
 			dMin = dCell;
@@ -169,7 +180,7 @@ double _ZEDobstacle::d(vInt4* pROI, vInt2* pPos)
 	return dMin;
 }
 
-double _ZEDobstacle::d(vDouble4* pROI, vInt2* pPos)
+double _ZEDdistance::d(vDouble4* pROI, vInt2* pPos)
 {
 #ifdef USE_ZED
 	if(!m_pZed)return -1.0;
@@ -191,15 +202,15 @@ double _ZEDobstacle::d(vDouble4* pROI, vInt2* pPos)
 	if (iR.w >= m_mDim.y)
 		iR.w = m_mDim.y - 1;
 
-	double dMin = m_range.y;
+	double dMin = m_rMax;
 	int i,j;
 	for(i=iR.y;i<iR.w;i++)
 	{
 		for(j=iR.x;j<iR.z;j++)
 		{
 			double dCell = m_pFilteredMatrix[i*m_mDim.x+j]->v();
-			IF_CONT(dCell < m_range.x);
-			IF_CONT(dCell > m_range.y);
+			IF_CONT(dCell < m_rMin);
+			IF_CONT(dCell > m_rMax);
 			IF_CONT(dCell > dMin);
 
 			dMin = dCell;
@@ -214,17 +225,17 @@ double _ZEDobstacle::d(vDouble4* pROI, vInt2* pPos)
 	return dMin;
 }
 
-vInt2 _ZEDobstacle::matrixDim(void)
+vInt2 _ZEDdistance::matrixDim(void)
 {
 	return m_mDim;
 }
 
-DIST_SENSOR_TYPE _ZEDobstacle::type(void)
+DIST_SENSOR_TYPE _ZEDdistance::type(void)
 {
 	return dsZED;
 }
 
-bool _ZEDobstacle::bReady(void)
+bool _ZEDdistance::bReady(void)
 {
 #ifdef USE_ZED
 	return m_bZEDready;
@@ -233,7 +244,7 @@ bool _ZEDobstacle::bReady(void)
 #endif
 }
 
-bool _ZEDobstacle::draw(void)
+bool _ZEDdistance::draw(void)
 {
 	IF_F(!this->_ThreadBase::draw());
 	Mat* pMat = ((Window*) this->m_pWindow)->getFrame()->getCMat();
@@ -249,7 +260,7 @@ bool _ZEDobstacle::draw(void)
 	IF_F(mM.empty());
 
 	double normD;
-	double baseD = 255.0/(m_range.y - m_range.x);
+	double baseD = 255.0/(m_rMax - m_rMin);
 
     Mat filterM = Mat::zeros(Size(m_mDim.x,m_mDim.y), CV_8UC1);
 	int i,j;
@@ -258,7 +269,7 @@ bool _ZEDobstacle::draw(void)
 		for(j=0;j<m_mDim.x;j++)
 		{
 			normD = m_pFilteredMatrix[i*m_mDim.x+j]->v();
-			normD = (normD - m_range.x) * baseD;
+			normD = (normD - m_rMin) * baseD;
 			filterM.at<uchar>(i,j) = 255 - (uchar)normD;
 		}
 	}

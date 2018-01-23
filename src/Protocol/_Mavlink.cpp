@@ -16,7 +16,7 @@ _Mavlink::_Mavlink()
 
 _Mavlink::~_Mavlink()
 {
-	close();
+	reset();
 }
 
 bool _Mavlink::init(void* pKiss)
@@ -47,17 +47,15 @@ bool _Mavlink::link(void)
 	iName = "";
 	F_ERROR_F(pK->v("_IOBase", &iName));
 	m_pIO = (_IOBase*) (pK->root()->getChildInstByName(&iName));
+	IF_Fl(!m_pIO,"_IOBase not found");
 
 	return true;
 }
 
-void _Mavlink::close()
+void _Mavlink::reset()
 {
-	if (m_pIO)
-	{
-		m_pIO->close();
-		m_pIO = NULL;
-	}
+	this->_ThreadBase::reset();
+	m_pIO = NULL;
 }
 
 bool _Mavlink::start(void)
@@ -79,8 +77,8 @@ void _Mavlink::update(void)
 {
 	while (m_bThreadON)
 	{
-		if(!m_pIO)continue;
-		if(!m_pIO->isOpen())continue;
+		IF_CONT(!m_pIO);
+		IF_CONT(!m_pIO->isOpen());
 
 		this->autoFPSfrom();
 
@@ -93,6 +91,8 @@ void _Mavlink::update(void)
 
 void _Mavlink::writeMessage(mavlink_message_t message)
 {
+	NULL_(m_pIO);
+
 	uint8_t pBuf[256];
 	int nB = mavlink_msg_to_send_buffer(pBuf, &message);
 
@@ -173,7 +173,7 @@ void _Mavlink::landingTarget(uint8_t stream_id, uint8_t frame, float angle_x,
 	mavlink_message_t message;
 	mavlink_landing_target_t ds;
 
-	ds.time_usec = get_time_usec();
+	ds.time_usec = getTimeUsec();
 	ds.target_num = 0;
 	ds.frame = MAV_FRAME_BODY_NED;
 	ds.angle_x = angle_x;
@@ -222,8 +222,7 @@ void _Mavlink::commandLongDoSetPositionYawThrust(float steer, float thrust)
 	LOG_I("<- COMMAND_LONG: MAV_CMD_DO_SET_POSITION_YAW_THRUST");
 }
 
-void _Mavlink::distanceSensor(uint8_t type, uint8_t orientation, uint16_t max,
-		uint16_t min, uint16_t v)
+void _Mavlink::distanceSensor(uint8_t type, uint8_t orientation, uint16_t max, uint16_t min, uint16_t v)
 {
 	/*
 	 time_boot_ms: anything (it’s ignored)
@@ -245,13 +244,12 @@ void _Mavlink::distanceSensor(uint8_t type, uint8_t orientation, uint16_t max,
 	ds.orientation = orientation;
 	ds.covariance = 255;
 	ds.id = 0;
-	ds.time_boot_ms = 0;
+	ds.time_boot_ms = getTimeBootMs();
 
 	mavlink_msg_distance_sensor_encode(m_systemID, m_myComponentID, &message, &ds);
 
 	writeMessage(message);
-	LOG_I(
-			"<- DIST_SENSOR sysID="<<m_systemID<<", d="<< ds.current_distance << ", min="<<ds.min_distance << ", max="<<ds.max_distance);
+	LOG_I("<- DIST_SENSOR sysID=" <<m_systemID << ", orient=" << (int)orientation << ", d=" << (int)ds.current_distance << ", min="<< (int)ds.min_distance << ", max="<< (int)ds.max_distance);
 }
 
 void _Mavlink::visionPositionDelta(uint64_t dTime, vDouble3* pDAngle,
@@ -272,7 +270,7 @@ void _Mavlink::visionPositionDelta(uint64_t dTime, vDouble3* pDAngle,
 
 	mavlink_message_t message;
 	mavlink_vision_position_delta_t dZed;
-	dZed.time_usec = get_time_usec();
+	dZed.time_usec = getTimeUsec();
 	dZed.time_delta_usec = dTime;
 	dZed.angle_delta[0] = (float) pDAngle->x;
 	dZed.angle_delta[1] = (float) pDAngle->y;
@@ -442,7 +440,7 @@ void _Mavlink::handleMessages()
 		m_msg.sysid = message.sysid;
 		m_msg.compid = message.compid;
 
-		uint64_t tNow = get_time_usec();
+		uint64_t tNow = getTimeUsec();
 
 		// Handle Message ID
 		switch (message.msgid)

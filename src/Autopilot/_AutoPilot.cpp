@@ -11,6 +11,7 @@ _AutoPilot::_AutoPilot()
 
 _AutoPilot::~_AutoPilot()
 {
+	reset();
 }
 
 bool _AutoPilot::init(void* pKiss)
@@ -43,9 +44,10 @@ bool _AutoPilot::init(void* pKiss)
 		ADD_ACTION(APcopter_base);
 		ADD_ACTION(APcopter_DNNavoid);
 		ADD_ACTION(APcopter_DNNnav);
-		ADD_ACTION(APcopter_sensorAvoid);
+		ADD_ACTION(APcopter_distZED);
+		ADD_ACTION(APcopter_distLidar);
 		ADD_ACTION(APcopter_visualFollow);
-		ADD_ACTION(APcopter_visualLanding);
+		ADD_ACTION(APcopter_DNNlanding);
 
 		ADD_ACTION(HM_base);
 		ADD_ACTION(HM_kickBack);
@@ -79,6 +81,16 @@ bool _AutoPilot::init(void* pKiss)
 	}
 
 	return true;
+}
+
+void _AutoPilot::reset(void)
+{
+	this->_ThreadBase::reset();
+
+	for(int i=0; i<m_nAction; i++)
+	{
+		DEL(m_pAction[i]);
+	}
 }
 
 bool _AutoPilot::link(void)
@@ -121,7 +133,7 @@ void _AutoPilot::update(void)
 	{
 		this->autoFPSfrom();
 
-		for(int i=0;i<m_nAction;i++)
+		for(int i=0; i<m_nAction; i++)
 		{
 			m_pAction[i]->update();
 		}

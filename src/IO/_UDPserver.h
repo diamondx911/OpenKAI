@@ -5,8 +5,8 @@
  *      Author: yankai
  */
 
-#ifndef SRC_IO_UDPreceiver_H_
-#define SRC_IO_UDPreceiver_H_
+#ifndef OpenKAI_src_IO__UDPserver_H_
+#define OpenKAI_src_IO__UDPserver_H_
 
 #include "../Base/common.h"
 #include "../Script/Kiss.h"
@@ -29,7 +29,7 @@ public:
 	bool link(void);
 	bool start(void);
 	void close(void);
-	void complete(void);
+	void reset(void);
 	bool draw(void);
 
 	bool open(void);

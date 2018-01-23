@@ -13,9 +13,7 @@ _TCP::_TCP(void)
 
 _TCP::~_TCP(void)
 {
-	close();
-	DEL(m_pServer);
-	DEL(m_pSocket);
+	reset();
 }
 
 bool _TCP::init(void* pKiss)
@@ -50,6 +48,14 @@ bool _TCP::init(void* pKiss)
 	return false;
 }
 
+void _TCP::reset(void)
+{
+	this->_IOBase::reset();
+	close();
+	DEL(m_pServer);
+	DEL(m_pSocket);
+}
+
 bool _TCP::open(void)
 {
 	IF_T(m_ioStatus == io_opened);
@@ -77,8 +83,8 @@ bool _TCP::open(void)
 void _TCP::close(void)
 {
 	m_ioStatus = io_closed;
-	if(m_pServer)m_pServer->complete();
-	else if(m_pSocket)m_pSocket->complete();
+	if(m_pServer)m_pServer->reset();
+	else if(m_pSocket)m_pSocket->reset();
 	LOG_I("Closed");
 }
 

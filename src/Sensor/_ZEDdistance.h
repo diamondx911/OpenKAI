@@ -1,35 +1,35 @@
 /*
- * _ZEDobstacle.h
+ * _ZEDdistance.h
  *
  *  Created on: Jan 6, 2017
  *      Author: yankai
  */
 
-#ifndef OpenKAI_src_Sensor__ZEDobstacle_H_
-#define OpenKAI_src_Sensor__ZEDobstacle_H_
+#ifndef OpenKAI_src_Sensor__ZEDdistance_H_
+#define OpenKAI_src_Sensor__ZEDdistance_H_
 
-#include "../Base/common.h"
-#include "../Base/_ThreadBase.h"
 #include "../DNN/Classifier/_ImageNet.h"
 #include "../Filter/Median.h"
 #include "../Vision/_ZED.h"
-#include "DistSensorBase.h"
+#include "_DistSensorBase.h"
 
 #define N_FILTER 1600
 
 namespace kai
 {
 
-class _ZEDobstacle: public _ThreadBase, public DistSensorBase
+class _ZEDdistance: public _DistSensorBase
 {
 public:
-	_ZEDobstacle(void);
-	virtual ~_ZEDobstacle();
+	_ZEDdistance(void);
+	virtual ~_ZEDdistance();
 
 	bool init(void* pKiss);
 	bool link(void);
 	bool start(void);
 	bool draw(void);
+	void reset(void);
+
 	vInt2 matrixDim(void);
 
 	DIST_SENSOR_TYPE type(void);
@@ -42,7 +42,7 @@ private:
 	void update(void);
 	static void* getUpdateThread(void* This)
 	{
-		((_ZEDobstacle *) This)->update();
+		((_ZEDdistance *) This)->update();
 		return NULL;
 	}
 

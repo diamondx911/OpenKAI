@@ -14,7 +14,7 @@ _ThreadBase::_ThreadBase()
 {
 	m_bThreadON = false;
 	m_threadID = 0;
-	m_timeStamp = 0;
+	m_tStamp = 0;
 	m_dTime = 1.0;
 	m_FPS = 0;
 	m_targetFPS = DEFAULT_FPS;
@@ -30,6 +30,7 @@ _ThreadBase::_ThreadBase()
 
 _ThreadBase::~_ThreadBase()
 {
+	reset();
 	pthread_mutex_destroy(&m_wakeupMutex);
 	pthread_cond_destroy(&m_wakeupSignal);
 }
@@ -44,6 +45,15 @@ bool _ThreadBase::init(void* pKiss)
 	setTargetFPS(FPS);
 
 	return true;
+}
+
+void _ThreadBase::reset(void)
+{
+	m_bThreadON = false;
+	IF_(m_threadID);
+	pthread_cancel(m_threadID);
+	pthread_join(m_threadID, NULL);
+	m_threadID = 0;
 }
 
 bool _ThreadBase::link(void)
@@ -81,7 +91,6 @@ void _ThreadBase::sleepTime(int64_t usec)
 		pthread_cond_wait(&m_wakeupSignal, &m_wakeupMutex);
 		pthread_mutex_unlock(&m_wakeupMutex);
 	}
-
 }
 
 void _ThreadBase::sleep(void)
@@ -103,9 +112,9 @@ void _ThreadBase::wakeUp(void)
 
 void _ThreadBase::updateTime(void)
 {
-	uint64_t newTime = get_time_usec();
-	m_dTime = newTime - m_timeStamp;
-	m_timeStamp = newTime;
+	uint64_t newTime = getTimeUsec();
+	m_dTime = newTime - m_tStamp;
+	m_tStamp = newTime;
 	m_FPS = USEC_1SEC / m_dTime;
 }
 
@@ -124,12 +133,12 @@ void _ThreadBase::setTargetFPS(int fps)
 
 void _ThreadBase::autoFPSfrom(void)
 {
-	m_timeFrom = get_time_usec();
+	m_timeFrom = getTimeUsec();
 }
 
 void _ThreadBase::autoFPSto(void)
 {
-	m_timeTo = get_time_usec();
+	m_timeTo = getTimeUsec();
 
 	int uSleep = (int) (m_targetFrameTime - (m_timeTo - m_timeFrom));
 	if (uSleep > 1000)
@@ -146,19 +155,10 @@ void _ThreadBase::autoFPSto(void)
 	this->updateTime();
 }
 
-void _ThreadBase::complete(void)
-{
-	m_bThreadON = false;
-	pthread_cancel(m_threadID);
-	pthread_join(m_threadID, NULL);
-}
-
 bool _ThreadBase::draw(void)
 {
 	IF_F(!this->BASE::draw());
-
 	Window* pWin = (Window*)this->m_pWindow;
-	Mat* pMat = pWin->getFrame()->getCMat();
 	pWin->tabReset();
 
 	string msg = *this->getName() + " FPS: " + i2str(m_FPS);

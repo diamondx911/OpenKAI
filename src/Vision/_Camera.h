@@ -1,12 +1,12 @@
 /*
- * Camera.h
+ * _Camera.h
  *
  *  Created on: Aug 22, 2015
  *      Author: yankai
  */
 
-#ifndef SRC_VISION_CAMERA_H_
-#define SRC_VISION_CAMERA_H_
+#ifndef OpenKAI_src_Vision__Camera_H_
+#define OpenKAI_src_Vision__Camera_H_
 
 #include "../Base/common.h"
 #include "_VisionBase.h"
@@ -24,7 +24,7 @@ public:
 	bool link(void);
 	bool start(void);
 	bool draw(void);
-	void complete(void);
+	void reset(void);
 
 private:
 	bool open(void);

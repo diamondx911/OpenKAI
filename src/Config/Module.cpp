@@ -22,12 +22,13 @@ BASE* Module::createInstance(Kiss* pK)
 	ADD_MODULE(_Canbus);
 	ADD_MODULE(_Flow);
 	ADD_MODULE(_GPS);
-	ADD_MODULE(_ImageNet);
+	ADD_MODULE(_GStreamer);
 	ADD_MODULE(_Lightware_SF40);
 	ADD_MODULE(_LeddarVu);
+	ADD_MODULE(_RPLIDAR);
 	ADD_MODULE(_Mavlink);
 	ADD_MODULE(_ClusterNet);
-	ADD_MODULE(_ZEDobstacle);
+	ADD_MODULE(_ZEDdistance);
 	ADD_MODULE(_Path);
 	ADD_MODULE(_RC);
 	ADD_MODULE(Window);
@@ -35,11 +36,12 @@ BASE* Module::createInstance(Kiss* pK)
 	ADD_MODULE(_TCPserver);
 	ADD_MODULE(_TCPsocket);
 	ADD_MODULE(_TCP);
-	ADD_MODULE(UDP);
+	ADD_MODULE(_UDP);
 	ADD_MODULE(_UDPclient);
 	ADD_MODULE(_UDPserver);
 
 	ADD_MODULE(_BBoxCutOut);
+	ADD_MODULE(_FrameCutOut);
 	ADD_MODULE(_Augment);
 	ADD_MODULE(_MultiImageNet);
 
@@ -71,6 +73,7 @@ BASE* Module::createInstance(Kiss* pK)
 	ADD_MODULE(_LSD_SLAM);
 #endif
 #ifdef USE_TENSORRT
+	ADD_MODULE(_ImageNet);
 	ADD_MODULE(_DetectNet);
 #endif
 

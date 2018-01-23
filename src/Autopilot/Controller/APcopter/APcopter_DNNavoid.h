@@ -1,36 +1,61 @@
 
-#ifndef OPENKAI_SRC_AUTOPILOT_ACTION_APCOPTER_DNNAVOID_H_
-#define OPENKAI_SRC_AUTOPILOT_ACTION_APCOPTER_DNNAVOID_H_
+#ifndef OpenKAI_src_Autopilot_Controller_APcopter_DNNavoid_H_
+#define OpenKAI_src_Autopilot_Controller_APcopter_DNNavoid_H_
 
 #include "../../../Base/common.h"
 #include "../../../DNN/Classifier/_ImageNet.h"
 #include "../../ActionBase.h"
 #include "APcopter_base.h"
 
-#define N_TERRAIN 16
-#define N_TERRAIN_CLASS 8
-#define N_TERRAIN_ACTION 8
+#define DNNAVOID_N_VISION 16
+#define DNNAVOID_N_ACTION 8
 
 namespace kai
 {
 
-struct TERRAIN_ACTION
+enum DNN_AVOID_ACTION_TYPE
 {
-	string m_pClass[N_TERRAIN_CLASS];
-	uint8_t m_action;
+	DA_UNKNOWN,DA_SAFE,DA_WARN,DA_FORBID
 };
 
-struct TERRAIN
+struct DNN_AVOID_ACTION
+{
+	uint64_t m_mClass; //class mask
+	DNN_AVOID_ACTION_TYPE m_action;
+
+	void init(void)
+	{
+		m_mClass = 0;
+		m_action = DA_UNKNOWN;
+	}
+
+	void addClass(int iClass)
+	{
+		IF_(iClass >= DETECTOR_N_CLASS);
+		IF_(iClass < 0);
+
+		m_mClass |= (1 << iClass);
+	}
+};
+
+struct DNN_AVOID_VISION
 {
 	uint8_t m_orientation;
+	double 	m_angleTan;	//tangent of the degree between gravity and camera direction
+	double	m_rMin;
+	double	m_rMax;
 	OBJECT* m_pObj;
-	TERRAIN_ACTION m_action[N_TERRAIN_ACTION];
+	DNN_AVOID_ACTION m_pAction[DNNAVOID_N_ACTION];
 	int	m_nAction;
 
 	void init(void)
 	{
 		m_orientation = 0;
+		m_angleTan = tan(30.0*DEG_RAD);
 		m_pObj = NULL;
+		m_nAction = 0;
+		m_rMin = 0;
+		m_rMax = 100;
 	}
 };
 
@@ -45,12 +70,18 @@ public:
 	void update(void);
 	bool draw(void);
 
-private:
-	APcopter_base* m_pAP;
-	_ImageNet*	m_pIN;
+	DNN_AVOID_ACTION_TYPE str2actionType(string& strAction);
+	string actionType2str(DNN_AVOID_ACTION_TYPE aType);
 
-	TERRAIN m_pTerrain[N_TERRAIN];
-	int m_nTerrain;
+private:
+#ifdef USE_TENSORRT
+	_ImageNet*	m_pIN;
+#endif
+	APcopter_base* m_pAP;
+
+	DNN_AVOID_VISION m_pVision[DNNAVOID_N_VISION];
+	int m_nVision;
+	DNN_AVOID_ACTION_TYPE m_action;
 
 };
 

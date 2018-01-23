@@ -28,7 +28,7 @@ _webSocket::_webSocket()
 
 _webSocket::~_webSocket()
 {
-	complete();
+	reset();
 	pthread_mutex_destroy (&m_mutexSend);
 	pthread_mutex_destroy (&m_mutexRecv);
 }
@@ -57,6 +57,14 @@ bool _webSocket::init(void* pKiss)
 	m_bConnected = false;
 
 	return true;
+}
+
+void _webSocket::reset(void)
+{
+	this->_ThreadBase::reset();
+	close();
+
+	DEL(m_pBuf);
 }
 
 bool _webSocket::link(void)
@@ -253,12 +261,6 @@ void _webSocket::close(void)
 		m_queRecv.pop();
 
 	LOG_I("Closed");
-}
-
-void _webSocket::complete(void)
-{
-	close();
-	this->_ThreadBase::complete();
 }
 
 bool _webSocket::draw(void)

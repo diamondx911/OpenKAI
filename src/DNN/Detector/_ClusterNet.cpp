@@ -9,7 +9,10 @@ namespace kai
 
 _ClusterNet::_ClusterNet()
 {
+#ifdef USE_TENSORRT
 	m_pIN = NULL;
+#endif
+
 	m_w = 0.2;
 	m_h = 0.2;
 	m_dW = 0.5;
@@ -55,11 +58,13 @@ bool _ClusterNet::link(void)
 	Kiss* pK = (Kiss*) m_pKiss;
 
 	string iName = "";
+
+#ifdef USE_TENSORRT
 	F_ERROR_F(pK->v("_ImageNet", &iName));
 	m_pIN = (_ImageNet*) (pK->root()->getChildInstByName(&iName));
 	IF_F(!m_pIN);
 
-	//create marker detection area instances
+	//create detection area instances
 	m_size.x = ((1.0 - m_w) / m_dW) + 1;
 	m_size.y = ((1.0 - m_h) / m_dH) + 1;
 	if (m_size.x <= 0 || m_size.y <= 0)
@@ -96,6 +101,10 @@ bool _ClusterNet::link(void)
 	bSetActive(true);
 
 	return true;
+
+#else
+	return false;
+#endif
 }
 
 bool _ClusterNet::start(void)
@@ -153,7 +162,6 @@ void _ClusterNet::cluster(void)
 			o.m_fBBox.y = m_area.y + b.y * m_dH * m_aH;
 			o.m_fBBox.w = m_area.y + (b.w * m_dH + m_h) * m_aH * m_aH;
 			o.f2iBBox();
-			o.m_prob = 1.0;
 			add(&o);
 
 			int i, j;
@@ -257,17 +265,19 @@ OBJECT* _ClusterNet::get(int i)
 void _ClusterNet::bSetActive(bool bActive)
 {
 	m_bActive = bActive;
+
+#ifdef USE_TENSORRT
 	m_pIN->bSetActive(m_bActive);
+#endif
 }
 
-bool _ClusterNet::bFound(int iClass, double minProb)
+bool _ClusterNet::bFound(int iClass)
 {
 	int i;
 	for (i = 0; i < m_nObj; i++)
 	{
 		OBJECT* pObj = m_ppObj[i];
 		IF_CONT(pObj->m_iClass != iClass);
-		IF_CONT(pObj->m_prob < minProb);
 
 		return true;
 	}

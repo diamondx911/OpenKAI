@@ -37,16 +37,15 @@
 #include "../DNN/Sensing/_DNNodometry.h"
 #include "../IO/_UDPclient.h"
 #include "../IO/_UDPserver.h"
-#include "../IO/UDP.h"
-
 #include "../Protocol/_Canbus.h"
 #include "../Protocol/_Mavlink.h"
 #include "../Protocol/_RC.h"
 
-#include "../Sensor/_ZEDobstacle.h"
+#include "../Sensor/_ZEDdistance.h"
 #include "../Sensor/_Lightware_SF40_sender.h"
 #include "../Sensor/_Lightware_SF40.h"
 #include "../Sensor/_LeddarVu.h"
+#include "../Sensor/RPLIDAR/_RPLIDAR.h"
 #include "../SLAM/_LSD_SLAM.h"
 #include "../SLAM/_ORB_SLAM2.h"
 #include "../Tracker/_ROITracker.h"
@@ -56,6 +55,7 @@
 
 #include "../Vision/Frame.h"
 #include "../Vision/_Camera.h"
+#include "../Vision/_GStreamer.h"
 #include "../Vision/_VisionBase.h"
 #include "../Vision/_ZED.h"
 #include "../Vision/FrameGroup.h"
@@ -63,7 +63,9 @@
 
 #include "../Data/Augment/_Augment.h"
 #include "../Data/Image/_BBoxCutOut.h"
+#include "../Data/Video/_FrameCutOut.h"
 #include "../Data/Inference/_MultiImageNet.h"
+#include "../IO/_UDP.h"
 
 #ifdef USE_CASCADE
 #include "../Detector/_Cascade.h"

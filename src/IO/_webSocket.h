@@ -5,8 +5,8 @@
  *      Author: yankai
  */
 
-#ifndef SRC_NETWORK_WEBSOCKET_H_
-#define SRC_NETWORK_WEBSOCKET_H_
+#ifndef OpenKAI_src_IO__webSocket_H_
+#define OpenKAI_src_IO__webSocket_H_
 
 #include "../Base/common.h"
 #include "../Base/_ThreadBase.h"
@@ -30,7 +30,7 @@ public:
 	bool link(void);
 	bool start(void);
 	void close(void);
-	void complete(void);
+	void reset(void);
 	bool draw(void);
 
 	bool write(uint8_t* pBuf, int nByte);

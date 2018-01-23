@@ -53,7 +53,7 @@ bool HM_follow::link(void)
 
 	iName = "";
 	F_INFO(pK->v("_Obstacle", &iName));
-	m_pObs = (_ZEDobstacle*) (pK->root()->getChildInstByName(&iName));
+	m_pObs = (_ZEDdistance*) (pK->root()->getChildInstByName(&iName));
 
 	iName = "";
 	F_INFO(pK->v("_MatrixNet", &iName));
@@ -96,7 +96,7 @@ void HM_follow::update(void)
 		}
 		else
 		{
-			IF_CONT(pO->m_name != m_targetName);
+//			IF_CONT(pO->m_name != m_targetName);
 		}
 
 		pO->m_dist = m_pObs->d(&pO->m_fBBox, NULL);

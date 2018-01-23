@@ -9,9 +9,8 @@ void onMouseGeneral(int event, int x, int y, int flags, void* userdata)
 void signalHandler(int signal)
 {
 	if (signal != SIGINT)return;
-	printf("\nSIGINT: Complete\n");
+	printf("\nSIGINT: OpenKAI Shutdown\n");
 	g_pStartup->m_bRun = false;
-	exit(0);
 }
 
 namespace kai
@@ -96,11 +95,13 @@ bool Startup::start(Kiss* pKiss)
 
 	for (i = 0; i < m_nInst; i++)
 	{
-		m_pInst[i]->complete();
+		m_pInst[i]->reset();
 	}
 
 	for (i = 0; i < m_nInst; i++)
+	{
 		DEL(m_pInst[i]);
+	}
 
 	return 0;
 }
@@ -122,7 +123,6 @@ void Startup::handleKey(int key)
 	{
 	case 27:
 		m_bRun = false;	//ESC
-		exit(0);
 		break;
 	default:
 		break;
@@ -165,7 +165,7 @@ bool Startup::createAllInst(Kiss* pKiss)
 
 		if (m_nInst >= N_INST)
 		{
-			LOG_I("Number of module instances reached limit");
+			LOG_E("Number of module instances reached limit");
 			return false;
 		}
 

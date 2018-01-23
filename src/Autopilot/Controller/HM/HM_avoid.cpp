@@ -85,7 +85,7 @@ bool HM_avoid::link(void)
 
 	iName = "";
 	F_INFO(pK->v("_Obstacle", &iName));
-	m_pObs = (_ZEDobstacle*) (pK->root()->getChildInstByName(&iName));
+	m_pObs = (_ZEDdistance*) (pK->root()->getChildInstByName(&iName));
 
 	iName = "";
 	F_INFO(pK->v("_MatrixNet", &iName));
@@ -110,7 +110,7 @@ void HM_avoid::update(void)
 	}
 
 	m_pMN->bSetActive(true);
-	uint64_t tNow = get_time_usec();
+	uint64_t tNow = getTimeUsec();
 
 	if(m_sequence == av_clear)
 	{
@@ -130,7 +130,7 @@ void HM_avoid::update(void)
  			m_rpmSteer *= -1;
 
 		//if found marker, start turn for the timer duration
-		if (m_pMN->bFound(m_iMarkerClass, m_minProb))
+		if (m_pMN->bFound(m_iMarkerClass))
 		{
 			m_markerTurnStart = tNow;
 			m_sequence = av_markerTurn;

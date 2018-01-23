@@ -5,8 +5,8 @@
  *      Author: yankai
  */
 
-#ifndef SRC_NETWORK_WEBSOCKETSERVER_H_
-#define SRC_NETWORK_WEBSOCKETSERVER_H_
+#ifndef OpenKAI_src_IO__webSocketServer_H_
+#define OpenKAI_src_IO__webSocketServer_H_
 
 #include "../Base/common.h"
 #include "../Base/_ThreadBase.h"
@@ -29,7 +29,7 @@ public:
 	bool init(void* pKiss);
 	bool link(void);
 	bool start(void);
-	void complete(void);
+	void reset(void);
 	bool draw(void);
 	_TCPsocket* getFirstSocket(void);
 

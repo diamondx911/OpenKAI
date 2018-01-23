@@ -5,8 +5,8 @@
  *      Author: yankai
  */
 
-#ifndef SRC_IO_UDP_H_
-#define SRC_IO_UDP_H_
+#ifndef OpenKAI_src_IO__UDP_H_
+#define OpenKAI_src_IO__UDP_H_
 
 #include "../Base/common.h"
 #include "../Script/Kiss.h"
@@ -18,16 +18,17 @@
 namespace kai
 {
 
-class UDP: public _IOBase
+class _UDP: public _IOBase
 {
 public:
-	UDP();
-	virtual ~UDP();
+	_UDP();
+	virtual ~_UDP();
 
 	bool init(void* pKiss);
 	bool link(void);
 	void close(void);
 	bool draw(void);
+	void reset(void);
 
 	int  read(uint8_t* pBuf, int nB);
 	bool write(uint8_t* pBuf, int nB);

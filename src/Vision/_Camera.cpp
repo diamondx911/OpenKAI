@@ -5,7 +5,7 @@
  *      Author: yankai
  */
 
-#include "../Vision/_Camera.h"
+#include "_Camera.h"
 
 namespace kai
 {
@@ -22,8 +22,7 @@ _Camera::_Camera()
 
 _Camera::~_Camera()
 {
-	complete();
-	DEL(m_pBGR);
+	reset();
 }
 
 bool _Camera::init(void* pKiss)
@@ -32,12 +31,7 @@ bool _Camera::init(void* pKiss)
 	Kiss* pK = (Kiss*) pKiss;
 	pK->m_pInst = this;
 
-	string presetDir = "";
-	string calibFile = "";
-
-	F_INFO(pK->root()->o("APP")->v("presetDir", &presetDir));
 	KISSm(pK, deviceID);
-
 	KISSm(pK, bCrop);
 	if (m_bCrop != 0)
 	{
@@ -49,6 +43,7 @@ bool _Camera::init(void* pKiss)
 
 	KISSm(pK, bCalibration);
 	KISSm(pK, bFisheye);
+	string calibFile = "";
 	F_INFO(pK->v("calibFile", &calibFile));
 
 	if (!calibFile.empty())
@@ -56,13 +51,13 @@ bool _Camera::init(void* pKiss)
 		FileStorage fs(calibFile, FileStorage::READ);
 		if (!fs.isOpened())
 		{
-			LOG_E("Calibration file not found:"<<presetDir<<calibFile);
+			LOG_E("Calibration file not found:"<<calibFile);
 			m_bCalibration = false;
 		}
 		else
 		{
-			fs["cameraMatrix"] >> m_cameraMat;
-			fs["dist_coeffs"] >> m_distCoeffs;
+			fs["camera_matrix"] >> m_cameraMat;
+			fs["distortion_coefficients"] >> m_distCoeffs;
 			fs.release();
 
 			Mat map1, map2;
@@ -93,6 +88,12 @@ bool _Camera::init(void* pKiss)
 
 	LOG_I("Initialized");
 	return true;
+}
+
+void _Camera::reset(void)
+{
+	this->_VisionBase::reset();
+	m_camera.release();
 }
 
 bool _Camera::link(void)
@@ -163,7 +164,6 @@ void _Camera::update(void)
 		{
 			if (!open())
 			{
-				LOG_E("Cannot open camera");
 				this->sleepTime(USEC_1SEC);
 				continue;
 			}
@@ -231,12 +231,6 @@ void _Camera::update(void)
 
 		this->autoFPSto();
 	}
-}
-
-void _Camera::complete(void)
-{
-	this->_VisionBase::complete();
-	m_camera.release();
 }
 
 bool _Camera::draw(void)
